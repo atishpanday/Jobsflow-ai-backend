@@ -3,9 +3,9 @@ from langchain.chains.history_aware_retriever import create_history_aware_retrie
 from langchain.chains.retrieval import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 
-from pinecone_client import get_pinecone_client, get_vector_store
+from utils.pinecone_client import get_pinecone_client, get_vector_store
 
-from llm import streaming_model, non_streaming_model
+from utils.llm import streaming_model, non_streaming_model
 
 contextualize_q_system_prompt = """
 Given a chat history and the latest user question

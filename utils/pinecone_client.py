@@ -3,7 +3,7 @@ from langchain_pinecone import PineconeVectorStore
 from dotenv import load_dotenv
 import os
 
-from embeddings import get_embeddings
+from utils.embeddings import get_embeddings
 
 load_dotenv(dotenv_path=".env.local")
 
