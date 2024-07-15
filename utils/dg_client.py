@@ -56,3 +56,8 @@ class DG_Client:
 
     def reset_transcription(self):
         self.transcription = ""
+
+    def disconnect(self):
+        self.connection_open = False
+        if self.dg_connection:
+            self.dg_connection.stop()

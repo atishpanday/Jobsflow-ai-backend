@@ -10,6 +10,13 @@ load_dotenv(".env.local")
 
 router = APIRouter()
 
+interviewer_questions = [
+    "Can you tell me something about yourself?",
+    "Why did you apply for this job?",
+    "What kind of work experience do you have?",
+    "Why should we hire you (and not someone else)?",
+]
+
 
 @router.websocket("/interview")
 async def handle_interview(websocket: WebSocket):
@@ -17,24 +24,34 @@ async def handle_interview(websocket: WebSocket):
     connection_open = True
     dg_client = DG_Client(os.getenv("DG_API_KEY"))
     dg_client.connect()
-    ai_interviewer = AI_Interviewer()
+    current_transcription = "User:"
+    q_num = 0
     try:
         while connection_open:
             data = await websocket.receive_bytes()
             dg_client.add_audio(data)
             if len(dg_client.transcription) > 0:
-                ai_interviewer.append_to_prompt(dg_client.transcription)
-                await websocket.send_text(dg_client.transcription)
+                current_transcription += dg_client.transcription
+                await websocket.send_text(current_transcription)
                 dg_client.reset_transcription()
             s_t = time.time()
-            while len(dg_client.transcription) == 0 and len(ai_interviewer.prompt) > 0:
+            while (
+                len(dg_client.transcription) == 0
+                and len(current_transcription.split(":")[1]) > 0
+                and q_num < len(interviewer_questions)
+            ):
                 e_t = time.time()
                 if (e_t - s_t) >= 3:
                     await websocket.send_text(
-                        f"AI Interviewer: {ai_interviewer.get_response()}"
+                        f"Interviewer: {interviewer_questions[q_num]}"
                     )
-                    ai_interviewer.reset_prompt()
-                    break
+                    current_transcription = "User:"
+                    q_num += 1
+        await websocket.send_text(
+            "Interviewer: The interview is now complete. Thank you!"
+        )
+        await websocket.close()
+        connection_open = False
     except WebSocketDisconnect:
         print("Client disconnected")
         connection_open = False
