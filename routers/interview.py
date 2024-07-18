@@ -1,6 +1,5 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from utils.dg_client import DG_Client
-from utils.ai_interviewer import AI_Interviewer
 from dotenv import load_dotenv
 import os
 import asyncio
